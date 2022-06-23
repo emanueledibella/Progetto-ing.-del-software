@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="358.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="4.0" layoutY="29.0" prefHeight="16.0" prefWidth="779.0" text="ATTENZIONE! La data di scadenza dei seguenti farmaci è inferiore a due mesi dalla data di prenotazione:">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <TableView fx:id="tableView" editable="true" layoutY="54.0" prefHeight="232.0" prefWidth="780.0">
+         <columns>
+            <TableColumn fx:id="nomeTableColumn" editable="false" prefWidth="343.0" sortable="false" text="Nome" />
+            <TableColumn fx:id="principioAttivoTableColumn" editable="false" minWidth="0.0" prefWidth="294.0" sortable="false" text="Principio attivo" />
+            <TableColumn fx:id="dataScadenzaTableColumn" editable="false" minWidth="0.0" prefWidth="142.0" sortable="false" text="Data di scadenza" />
+         </columns>
+      </TableView>
+      <Button fx:id="proseguiButton" layoutX="196.0" layoutY="317.0" mnemonicParsing="false" onMouseClicked="#confirm" text="Prosegui ugualmente" />
+      <Button fx:id="spostaConsegnaButton" layoutX="401.0" layoutY="317.0" mnemonicParsing="false" onMouseClicked="#moveDelivery" prefHeight="24.0" prefWidth="266.0" text="Sposta data consegna e prosegui" />
+      <Button fx:id="indietroButton" mnemonicParsing="false" onMouseClicked="#indietroButtonOnMouseClicked" prefHeight="20.0" prefWidth="780.0" text="INDIETRO">
+         <font>
+            <Font name="System Bold" size="10.0" />
+         </font>
+      </Button>
+   </children>
+</AnchorPane>
