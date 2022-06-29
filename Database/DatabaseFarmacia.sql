@@ -20,3 +20,19 @@ CREATE TABLE Farmacista
 	refFarmacia INT NOT NULL,
 	FOREIGN KEY(refFarmacia) REFERENCES Farmacia(idFarmacia)
 );
+
+CREATE TABLE Farmaco
+(
+	idFarmaco INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	nome CHAR(30) NOT NULL,
+	principioAttivo CHAR(15),
+	dataScadenza DATE NOT NULL,
+	disponibilita INT NOT NULL,
+	daBanco BOOLEAN NOT NULL,
+	refFarmacia INT NOT NULL,
+	FOREIGN KEY(refFarmacia) REFERENCES Farmacia(idFarmacia)
+);
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco, refFarmacia) VALUES('Aspirina 400 MG Compresse', '', '2022-06-25', 20, 1, 1);
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco, refFarmacia) VALUES('Vicks Sinex Flacone', '', '2022-11-24', 30, 0, 1);
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco, refFarmacia) VALUES('Vicks Sinex Flacone', '', '2022-06-23', 10, 0, 1);
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco, refFarmacia) VALUES('Vicks Sinex Flacone', '', '2022-11-25', 25, 0, 1);

@@ -36,15 +36,16 @@ CREATE TABLE Farmaco
 	nome CHAR(30) NOT NULL,
 	principioAttivo CHAR(15),
 	dataScadenza DATE NOT NULL,
-	disponibilita INT NOT NULL
+	disponibilita INT NOT NULL,
+	daBanco BOOLEAN NOT NULL
 );
-INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Aspirina 400 MG Compresse', '', '2022-11-23', 20);
+/*INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Aspirina 400 MG Compresse', '', '2022-11-23', 20);
 INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Vicks Sinex Flacone', '', '2022-11-24', 30);
 INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Vicks Sinex Flacone', '', '2022-07-15', 10);
-INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Vicks Sinex Flacone', '', '2022-11-25', 25);
-/*INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Aspirina 400 MG Compresse', '', '2022-07-23', 250);
-INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Vicks Sinex Flacone', '', '2022-09-15', 250);
-INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Rinazina Spray Nasale', '', '2022-09-27', 250);*/
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('Vicks Sinex Flacone', '', '2022-11-25', 25);*/
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco) VALUES('Aspirina 400 MG Compresse', '', '2022-07-23', 250, 0);
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco) VALUES('Vicks Sinex Flacone', '', '2022-09-15', 250, 1);
+INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco) VALUES('Rinazina Spray Nasale', '', '2022-09-27', 250, 1);
 
 
 CREATE TABLE Ordine
