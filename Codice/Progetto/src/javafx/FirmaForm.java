@@ -2,29 +2,53 @@ package javafx;
 
 import java.io.IOException;
 
-import control.UserControl;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 
-public class HomepageCorriere {
+import control.DeliveryControl;;
+
+public class FirmaForm {
+    private int idOrdine;
 
     @FXML
-    private Button logoutButton;
+    private Canvas firmaCanvas;
+    
+    @FXML
+    private Button indietroButton;
 
     @FXML
-    private Button visualConsegneButton;
+    private Button proseguiButton;
+
+    private DeliveryControl deliveryControl = new DeliveryControl();
+
+    public FirmaForm(int idOrdine){
+        this.idOrdine = idOrdine;
+    }
 
     @FXML
-    void visualizzaConsegne(MouseEvent event) {
-        if(event.getSource() == visualConsegneButton){
+    void firma(MouseEvent event){
+        GraphicsContext gc = firmaCanvas.getGraphicsContext2D();
+        gc.setLineWidth(7.0);
+        firmaCanvas.setOnMousePressed(e -> gc.beginPath()); 
+        firmaCanvas.setOnMouseDragged(e -> { 
+                gc.lineTo(e.getX(), e.getY()); 
+                gc.stroke(); 
+        });
+    }
+
+    @FXML
+    void indietroOnMouseClicked(MouseEvent event) {
+        if(event.getSource() == indietroButton){
             try {
                 Parent root = FXMLLoader.load(getClass().getResource("../javafx/DeliveryList.fxml"));
                 Scene scene = new Scene(root);
@@ -42,14 +66,11 @@ public class HomepageCorriere {
     }
 
     @FXML
-    void logout(MouseEvent event) {
-        if(event.getSource() == logoutButton) {
+    void proseguiOnMouseClicked(MouseEvent event) {
+        if (event.getSource() == proseguiButton) {
+            deliveryControl.dbAziendaManager.setAsSigned(idOrdine);
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/LogoutForm.fxml"));
-                LogoutForm logoutForm = new LogoutForm(new UserControl());
-                loader.setController(logoutForm);
-                Parent root;
-                root = loader.load();
+                Parent root = FXMLLoader.load(getClass().getResource("../javafx/DeliveryList.fxml"));
                 Scene scene = new Scene(root);
                 Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
@@ -57,10 +78,10 @@ public class HomepageCorriere {
                 stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
                 stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                 stage.show();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
 }

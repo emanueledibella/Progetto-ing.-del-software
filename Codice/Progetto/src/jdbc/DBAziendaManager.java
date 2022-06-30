@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 import model.Medicine;
 import model.Order;
+import model.Corriere;
+import model.Delivery;
 
 public class DBAziendaManager {
     private String dbUrl = "jdbc:mysql://localhost:3306/DatabaseAzienda?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false";
@@ -283,6 +285,56 @@ public class DBAziendaManager {
             connection.close();
         } catch(Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public LinkedList<Delivery> getDeliveries(Corriere corriere){
+        try {
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT a.idOrdine,a.dataConsegna,b.nome,b.indirizzo, b.numeroTelefono,d.nome FROM ordine a,farmacia b,compone c,farmaco d WHERE stato='da consegnare' AND refCorriere=' "+ corriere.getRefCorriere() + "' AND a.refFarmacia=b.idFarmacia AND c.refOrdine=a.idOrdine AND c.refFarmaco=d.idFarmaco ORDER BY a.idOrdine ASC;");
+            LinkedList<Delivery> del = new LinkedList<Delivery>();
+            resultSet.next();
+            while(true){
+                LinkedList <String> meds = new LinkedList<>();
+                int idOrdine = Integer.parseInt(resultSet.getString(1));
+                Date dataConsegna = resultSet.getDate(2);
+                String nomeFarmacia = resultSet.getString(3);
+                String indirizzo = resultSet.getString(4);
+                String numeroTelefono = resultSet.getString(5);
+                meds.add(resultSet.getString(6));
+                
+                while (true) {
+                    if (resultSet.next()) {
+                        int nuovoIdOrdine = Integer.parseInt(resultSet.getString(1));
+                        if (idOrdine == nuovoIdOrdine) {
+                            meds.add(resultSet.getString(6));
+                        } else {
+                            del.add(new Delivery(idOrdine, dataConsegna, nomeFarmacia, indirizzo, numeroTelefono, meds));
+                            break;
+                        }    
+                    } else {
+                        del.add(new Delivery(idOrdine, dataConsegna, nomeFarmacia, indirizzo, numeroTelefono, meds));
+                        connection.close();
+                        return del;
+                    }   
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setAsSigned(int idOrdine){
+        try {
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+
+            statement.executeUpdate("UPDATE `ordine` SET `stato`='consegnato' WHERE idOrdine= '" + idOrdine + "';");
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();;
         }
     }
 }
