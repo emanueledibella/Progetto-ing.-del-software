@@ -17,6 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -115,7 +116,7 @@ public class DeliveryList implements Initializable {
                             }
                         });
                     }
-
+                    
                     @Override
                     public void updateItem(Void item, boolean empty) {
                         super.updateItem(item, empty);
@@ -126,6 +127,7 @@ public class DeliveryList implements Initializable {
                         }
                     }
                 };
+                cell.setAlignment(Pos.CENTER);
                 return cell;
             }
         };

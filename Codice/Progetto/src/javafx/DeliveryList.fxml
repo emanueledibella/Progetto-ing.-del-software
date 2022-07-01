@@ -15,9 +15,7 @@
       </Button>
       <TableView fx:id="tableview" layoutY="24.0" prefHeight="430.0" prefWidth="827.0">
         <columns>
-          <TableColumn fx:id="firmaTableColumn" prefWidth="70.0" text="Firma">
-               <!-- <Button fx:id="firmaButton" text="Firma" prefHeight="20.0" prefWidth="20.0" onMouseClicked="#indietroOnMouseClicked"/> -->
-            </TableColumn>   
+          <TableColumn fx:id="firmaTableColumn" prefWidth="70.0" text="Firma" /> 
           <TableColumn prefWidth="260.0" text="Ordine">
                <columns>
                   <TableColumn fx:id="farmaciTableColumn" prefWidth="75.0" text="Farmaci" />
