@@ -1,8 +1,10 @@
 package javafx;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import control.UserControl;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -16,10 +18,11 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 
-//import java.util.Properties;
-//import javax.mail.*;
-//import javax.mail.internet.InternetAddress;
-//import javax.mail.internet.MimeMessage;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 public class RecoverPassForm {
 
@@ -65,16 +68,15 @@ public class RecoverPassForm {
                 // Generare codice OTP
                 String OTPCode = String.valueOf((int)(Math.random() * 1000000));
                 userControl.user.setOTPCode(OTPCode);
-
-                // TODO: Inviare email
-                /*String mittente="AziendaFarmaceutica@azienda.it";
-                String host="smtp.tim.it";
+                // Invio dell'email
+                String mittente="aziendafarmaceutica@azienda.it";
+                String host="smtp.freesmtpservers.com";
                 String subject = "Azienda Farmaceutica: Recupera Password";
-                String text = "Gentile cliente,\n\nEcco il codice OTP per effettuare il recupero della password:" + OTPCode + "\n\nSe non sei stato tu a richiedere il recupero della password, ignora questa email.";
+                String text = "Gentile utente,\n\nEcco il codice OTP per effettuare il recupero della password: " + OTPCode + "\n\nSe non sei stato tu a richiedere il recupero della password, ignora questa email.";
                 Properties properties = new Properties();
                 properties.put("mail.smtp.host", host);
-                properties.put("port", 25);	// Alternativamente, provare con 587
-                Session session = Session.getDefaultInstance(properties, null);
+                properties.put("port", 25);
+                Session session = Session.getInstance(properties, null);              
                 MimeMessage mail = new MimeMessage(session);
                 try {
                     mail.setFrom(new InternetAddress(mittente));
@@ -86,10 +88,8 @@ public class RecoverPassForm {
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                */
 
-                // TODO: Una volta capito come inviare la email, per completare il caso d'uso attivare codice sotto
-                /*try {
+                try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/OTPForm.fxml"));
                     OTPForm otpForm = new OTPForm(userControl);
                     loader.setController(otpForm);
@@ -104,8 +104,7 @@ public class RecoverPassForm {
                     stage.show();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }*/
-
+                }
 
             } else {
                 errorLabel.setText("ERRORE: All'interno del sistema non esiste un account associato a questa email!");
