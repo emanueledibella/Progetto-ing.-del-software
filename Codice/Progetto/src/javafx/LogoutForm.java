@@ -30,15 +30,9 @@ public class LogoutForm {
 
     @FXML
     void cancel(MouseEvent event) {
-        String tipologiaUtente = userControl.user.getTipologiaUtente();
-
-        if(tipologiaUtente.equals("Farmacista")) {
+        if(userControl == null) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageFarmacista.fxml"));
-                HomepageFarmacista homepageFarmacista = new HomepageFarmacista(userControl);
-                loader.setController(homepageFarmacista);
-                Parent root;
-                root = loader.load();
+                Parent root = FXMLLoader.load(getClass().getResource("../javafx/HomepageAddettoAzienda.fxml"));
                 Scene scene = new Scene(root);
                 Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
@@ -50,32 +44,55 @@ public class LogoutForm {
                 e.printStackTrace();
             }
         } else {
-            Parent root;
-            try {
-                root = FXMLLoader.load(getClass().getResource("../javafx/" + tipologiaUtente + ".fxml"));
-                Scene scene = new Scene(root);
+            String tipologiaUtente = userControl.user.getTipologiaUtente();
 
-                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
-                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(tipologiaUtente.equals("Farmacista")) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageFarmacista.fxml"));
+                    HomepageFarmacista homepageFarmacista = new HomepageFarmacista(userControl);
+                    loader.setController(homepageFarmacista);
+                    Parent root;
+                    root = loader.load();
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                    stage.setScene(scene);
+                    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                    stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                    stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if(tipologiaUtente.equals("Corriere")) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageCorriere.fxml"));
+                    HomepageCorriere homepageCorriere = new HomepageCorriere(userControl);
+                    loader.setController(homepageCorriere);
+                    Parent root;
+                    root = loader.load();
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                    stage.setScene(scene);
+                    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                    stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                    stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
     @FXML
     void confirm(MouseEvent event) {
-        userControl.user.destroySession();
+        if(userControl != null)
+            userControl.user.destroySession();
 
         Parent root;
         try {
             root = FXMLLoader.load(getClass().getResource("../javafx/LoginForm.fxml"));
             Scene scene = new Scene(root);
-
             Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
             stage.setScene(scene);
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();

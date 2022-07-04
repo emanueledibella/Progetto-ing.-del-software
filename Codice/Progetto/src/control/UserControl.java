@@ -14,4 +14,8 @@ public class UserControl {
             return false;
         return true;
     }
+
+    public boolean checkOTP(String OTPCode) {
+        return user.getOTPCode().equals(OTPCode);
+    }
 }

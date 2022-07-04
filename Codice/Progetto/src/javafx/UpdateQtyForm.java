@@ -66,7 +66,7 @@ public class UpdateQtyForm implements Initializable {
                 Date dataScadenza = dataScadenzaTableColumn.getCellData(i);
                 int disponibilita = disponibilitaTableColumn.getCellData(i);
 
-                Medicine med = new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita);
+                Medicine med = new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita, false);
                 meds.add(med);
             }
 

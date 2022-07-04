@@ -3,6 +3,9 @@ package jdbc;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.LinkedList;
+
+import model.Medicine;
 
 public class DBFarmaciaManager {
     private String dbUrl = "jdbc:mysql://localhost:3306/DatabaseFarmacia?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false";
@@ -30,6 +33,19 @@ public class DBFarmaciaManager {
         return exists;
     }
 
+    public void decreaseQty(Medicine medicine) {
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            statement.executeUpdate("UPDATE Farmaco SET disponibilita = 0 WHERE idFarmaco = '" + medicine.getIdFarmaco() + "'");
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private String getMD5(String stringa) {
         String hashString = null;
 
@@ -50,6 +66,81 @@ public class DBFarmaciaManager {
         }
 
         return hashString;
+    }
+
+    public LinkedList<Medicine> getAllMeds(int refFarmacia) {
+        LinkedList<Medicine> medicines = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Farmaco WHERE refFarmacia = '" + refFarmacia + "' ORDER BY nome");
+            while(resultSet.next()) {
+                int idFarmaco = Integer.parseInt(resultSet.getString("idFarmaco"));
+                String nome = resultSet.getString("nome");
+                String principioAttivo = resultSet.getString("principioAttivo");
+                Date dataScadenza = Date.valueOf(resultSet.getString("dataScadenza"));
+                int disponibilita = Integer.parseInt(resultSet.getString("disponibilita"));
+                Boolean daBanco = Boolean.parseBoolean(resultSet.getString("daBanco"));
+
+                medicines.add(new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita, daBanco));
+            }
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return medicines;
+    }
+
+    public LinkedList<Medicine> getMedsByRefFarmacia(int refFarmacia) {
+        LinkedList<Medicine> medicines = new LinkedList<>();
+
+        try { 
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Farmaco WHERE refFarmacia = '" + refFarmacia + "'");
+            while(resultSet.next()) {
+                int idFarmaco = Integer.parseInt(resultSet.getString("idFarmaco"));
+                String nome = resultSet.getString("nome");
+                String principioAttivo = resultSet.getString("principioAttivo");
+                Date dataScadenza = Date.valueOf(resultSet.getString("dataScadenza"));
+                int disponibilita = Integer.parseInt(resultSet.getString("disponibilita"));
+                boolean daBanco = Boolean.parseBoolean(resultSet.getString("daBanco"));
+
+                medicines.add(new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita, daBanco));
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return medicines;
+    }
+    
+    public LinkedList<Medicine> getNotOTCMeds(int refFarmacia) {
+        LinkedList<Medicine> medicines = new LinkedList<>();
+
+        try { 
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT DISTINCT nome FROM Farmaco WHERE daBanco = '0' AND refFarmacia = '" + refFarmacia + "'");
+            while(resultSet.next()) {
+                String nome = resultSet.getString("nome");
+
+                medicines.add(new Medicine(-1, nome, "", null, 0, false));
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return medicines;
     }
 
     public int getRefFarmacia(String email) {
@@ -108,5 +199,36 @@ public class DBFarmaciaManager {
         if(number != 0)
             return true;
         return false;
+    }
+
+    public void updateAvailability(LinkedList<Medicine> meds) {
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+
+            for(int i=0; i<meds.size(); i++) {
+                Medicine med = meds.remove();
+
+                statement.executeUpdate("UPDATE Farmaco SET disponibilita=" + String.valueOf(med.getDisponibilita()) + " WHERE idFarmaco=" + String.valueOf(med.getIdFarmaco()));
+            }
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updatePassword(String email, String newPassword) {
+        String newPasswordHash = getMD5(newPassword);
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+
+            statement.executeUpdate("UPDATE Farmacista SET hashPassword = '" + newPasswordHash + "' WHERE email = '" + email + "'");
+            
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 }

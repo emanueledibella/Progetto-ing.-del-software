@@ -15,11 +15,10 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 
-import control.DeliveryControl;;
+import control.DeliveryControl;
+import control.UserControl;
 
-public class FirmaForm {
-    private int idOrdine;
-
+public class DeliveryForm {
     @FXML
     private Canvas firmaCanvas;
     
@@ -29,10 +28,12 @@ public class FirmaForm {
     @FXML
     private Button proseguiButton;
 
-    private DeliveryControl deliveryControl = new DeliveryControl();
+    private UserControl userControl;
+    private DeliveryControl deliveryControl;
 
-    public FirmaForm(int idOrdine){
-        this.idOrdine = idOrdine;
+    public DeliveryForm(UserControl userControl, DeliveryControl deliveryControl){
+        this.userControl = userControl;
+        this.deliveryControl = deliveryControl;
     }
 
     @FXML
@@ -50,7 +51,11 @@ public class FirmaForm {
     void indietroOnMouseClicked(MouseEvent event) {
         if(event.getSource() == indietroButton){
             try {
-                Parent root = FXMLLoader.load(getClass().getResource("../javafx/DeliveryList.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/DeliveryList.fxml"));
+                DeliveryList deliveryList = new DeliveryList(userControl);
+                loader.setController(deliveryList);
+                Parent root;
+                root = loader.load();
                 Scene scene = new Scene(root);
                 Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
@@ -58,8 +63,7 @@ public class FirmaForm {
                 stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
                 stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                 stage.show();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -68,9 +72,14 @@ public class FirmaForm {
     @FXML
     void proseguiOnMouseClicked(MouseEvent event) {
         if (event.getSource() == proseguiButton) {
-            deliveryControl.dbAziendaManager.setAsSigned(idOrdine);
+            deliveryControl.dbAziendaManager.setAsSigned(deliveryControl.getOrder());
+            
             try {
-                Parent root = FXMLLoader.load(getClass().getResource("../javafx/DeliveryList.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageCorriere.fxml"));
+                HomepageCorriere homepageCorriere = new HomepageCorriere(userControl);
+                loader.setController(homepageCorriere);
+                Parent root;
+                root = loader.load();
                 Scene scene = new Scene(root);
                 Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
@@ -78,8 +87,7 @@ public class FirmaForm {
                 stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
                 stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                 stage.show();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

@@ -19,26 +19,10 @@ public class HomepageCorriere {
     @FXML
     private Button logoutButton;
 
-    @FXML
-    private Button visualConsegneButton;
+    private UserControl userControl;
 
-    @FXML
-    void visualizzaConsegne(MouseEvent event) {
-        if(event.getSource() == visualConsegneButton){
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("../javafx/DeliveryList.fxml"));
-                Scene scene = new Scene(root);
-                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
-                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
-                stage.show();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    public HomepageCorriere(UserControl userControl) {
+        this.userControl = userControl;
     }
 
     @FXML
@@ -46,7 +30,7 @@ public class HomepageCorriere {
         if(event.getSource() == logoutButton) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/LogoutForm.fxml"));
-                LogoutForm logoutForm = new LogoutForm(new UserControl());
+                LogoutForm logoutForm = new LogoutForm(userControl);
                 loader.setController(logoutForm);
                 Parent root;
                 root = loader.load();
@@ -63,4 +47,23 @@ public class HomepageCorriere {
         }
     }
 
+    @FXML
+    void viewDelivery(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/DeliveryList.fxml"));
+            DeliveryList deliveryList = new DeliveryList(userControl);
+            loader.setController(deliveryList);
+            Parent root;
+            root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

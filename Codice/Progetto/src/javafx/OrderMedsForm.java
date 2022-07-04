@@ -8,6 +8,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
+import model.Farmacista;
 import model.Medicine;
 import javafx.event.EventHandler;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -26,7 +27,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.scene.Node;
-import javafx.stage.Window;
 import control.OrderControl;
 import control.UserControl;
 
@@ -60,14 +60,6 @@ public class OrderMedsForm implements Initializable {
 
     public OrderMedsForm(UserControl userControl) {
         this.userControl = userControl;
-    }
-
-    public OrderControl getOrderControl() {
-        return this.orderControl;
-    }
-
-    public UserControl getUserControl() {
-        return this.userControl;
     }
 
     @FXML
@@ -137,7 +129,7 @@ public class OrderMedsForm implements Initializable {
                     String nome = nomeTableColumn.getCellData(i); 
                     String principioAttivo = principioAttivoTableColumn.getCellData(i);
 
-                    Medicine medicine = new Medicine(-1, nome, principioAttivo, null, quantita);
+                    Medicine medicine = new Medicine(-1, nome, principioAttivo, null, quantita, false);
                     medicines.add(medicine);
                 }
             }
@@ -145,9 +137,13 @@ public class OrderMedsForm implements Initializable {
             // Ottenere data di consegna selezionata dal Farmacista
             LocalDate dataConsegna = dataConsegnaDatePicker.getValue();
 
+            Farmacista farmacista = (Farmacista)userControl.user;
+            orderControl.getOrder().setRefFarmacia(farmacista.getRefFarmacia());
+            orderControl.getOrder().setMedicines(medicines);
+            orderControl.getOrder().setDataConsegna(dataConsegna);
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/OrderMedsSummaryForm.fxml"));
-                OrderMedsSummaryForm orderMedsSummaryForm = new OrderMedsSummaryForm(userControl, medicines, dataConsegna, this);
+                OrderMedsSummaryForm orderMedsSummaryForm = new OrderMedsSummaryForm(userControl, orderControl/*medicines, dataConsegna, this*/);
                 loader.setController(orderMedsSummaryForm);
                 Parent root;
                 root = loader.load();
@@ -161,27 +157,6 @@ public class OrderMedsForm implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void order() {
-        orderControl.order();
-
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageFarmacista.fxml"));
-            HomepageFarmacista homepageFarmacista = new HomepageFarmacista(userControl);
-            loader.setController(homepageFarmacista);
-            Parent root;
-            root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage)Stage.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
-            stage.setScene(scene);
-            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
-            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

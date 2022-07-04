@@ -19,6 +19,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import model.Corriere;
 import model.Farmacista;
 import javafx.scene.Node;
 import java.sql.*;
@@ -118,28 +119,41 @@ public class RegisterForm implements Initializable {
 
                         userControl.user.setSession(selectedItem);
 
-                        Parent root = null;
                         if(selectedItem == "AddettoAzienda") {
                             try {
-                                root = FXMLLoader.load(getClass().getResource("../javafx/HomepageAddettoAzienda.fxml"));
+                                Parent root = FXMLLoader.load(getClass().getResource("../javafx/HomepageAddettoAzienda.fxml"));
+                                Scene scene = new Scene(root);
+                                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                                stage.setScene(scene);
+                                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                                stage.show();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                        }
-                        else {
+                        } else {
+                            int idCorriere = userControl.dbAziendaManager.getIdCorriere(emailTextField.getText());
+                            Corriere corriere = new Corriere(idCorriere);
+                            userControl.user = corriere;
+
                             try {
-                                root = FXMLLoader.load(getClass().getResource("../javafx/HomepageCorriere.fxml"));
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageCorriere.fxml"));
+                                HomepageCorriere homepageCorriere = new HomepageCorriere(userControl);
+                                loader.setController(homepageCorriere);
+                                Parent root;
+                                root = loader.load();
+                                Scene scene = new Scene(root);
+                                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                                stage.setScene(scene);
+                                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                                stage.show();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        Scene scene = new Scene(root);
-                        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                        stage.setScene(scene);
-                        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                        stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
-                        stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
-                        stage.show();
                     }
                 }
                 else {
@@ -171,21 +185,6 @@ public class RegisterForm implements Initializable {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        /*
-                        Parent root = null;
-                        try {
-                            root = FXMLLoader.load(getClass().getResource("../javafx/HomepageFarmacia.fxml"));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        Scene scene = new Scene(root);
-                        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                        stage.setScene(scene);
-                        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                        stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
-                        stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
-                        stage.show();
-                        */
                     }
                 }
             }

@@ -6,10 +6,9 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.LinkedList;
 
+import model.Farmacia;
 import model.Medicine;
 import model.Order;
-import model.Corriere;
-import model.Delivery;
 
 public class DBAziendaManager {
     private String dbUrl = "jdbc:mysql://localhost:3306/DatabaseAzienda?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false";
@@ -39,6 +38,85 @@ public class DBAziendaManager {
         }
 
         return exists;
+    }
+
+    public void deleteOrder(Order order) {
+        LinkedList<Medicine> medicines = order.getMedicines();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+
+            // Ripristinare le quantità dei farmaci
+            for(int i=0; i<medicines.size(); i++) {
+                int idFarmaco = medicines.get(i).getIdFarmaco();
+                int disponibilita = medicines.get(i).getDisponibilita();
+
+                statement.executeUpdate("UPDATE Farmaco SET disponibilita=disponibilita + '" + disponibilita + "' WHERE idFarmaco='" + idFarmaco + "'");
+            }
+
+            // Cancellare tutte le entry inerenti l'ordine nella tabella Compone
+            statement.executeUpdate("DELETE FROM Compone WHERE refOrdine ='" + order.getIdOrdine() + "'");
+
+            // Cancellare entry nella tabella Ordine
+            statement.executeUpdate("DELETE FROM Ordine WHERE idOrdine='" + order.getIdOrdine() + "'");
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public LinkedList<Order> getDeliveredOrdersByRefFarmacia(int refFarmacia) {
+        LinkedList<Order> orders = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Ordine WHERE refFarmacia = '" + refFarmacia + "' AND stato = 'Consegnato' ORDER BY idOrdine DESC");
+            while(resultSet.next()) {
+                int idOrdine = Integer.parseInt(resultSet.getString("idOrdine"));
+                String stato = resultSet.getString("stato");
+                LocalDate dataConsegna = LocalDate.parse(resultSet.getString("dataConsegna"));
+                int refCorriere = Integer.parseInt(resultSet.getString("refCorriere"));
+                LinkedList<Medicine> medicines = this.getMedicinesByOrderId(idOrdine);
+
+                Order order = new Order(idOrdine, stato, dataConsegna, refCorriere, refFarmacia, medicines, false);
+                orders.add(order);
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
+    public Farmacia getFarmaciaByRefFarmacia(int refFarmacia) {
+        Farmacia farmacia = null;
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Farmacia WHERE idFarmacia = '" + refFarmacia + "'");
+            while(resultSet.next()) {
+                int idFarmacia = Integer.parseInt(resultSet.getString("idFarmacia"));
+                String nome = resultSet.getString("nome");
+                String numeroTelefono = resultSet.getString("numeroTelefono");
+                String indirizzo = resultSet.getString("indirizzo");
+
+                farmacia = new Farmacia(idFarmacia, nome, numeroTelefono, indirizzo);
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return farmacia;
     }
 
     public LinkedList<Integer> getIdCorrieri() {
@@ -77,8 +155,9 @@ public class DBAziendaManager {
                 String principioAttivo = resultSet.getString("principioAttivo");
                 Date dataScadenza = Date.valueOf(resultSet.getString("dataScadenza"));
                 int disponibilita = Integer.parseInt(resultSet.getString("disponibilita"));
+                boolean daBanco = Boolean.parseBoolean(resultSet.getString("daBanco"));
 
-                medicines.add(new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita));
+                medicines.add(new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita, daBanco));
             }
 
             connection.close();
@@ -103,8 +182,45 @@ public class DBAziendaManager {
                 String principioAttivo = resultSet.getString("principioAttivo");
                 Date dataScadenza = Date.valueOf(resultSet.getString("dataScadenza"));
                 int disponibilita = Integer.parseInt(resultSet.getString("disponibilita"));
+                boolean daBanco = Boolean.parseBoolean(resultSet.getString("daBanco"));
 
-                medicines.add(new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita));
+                medicines.add(new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita, daBanco));
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return medicines;
+    }
+
+    public LinkedList<Medicine> getMedicinesByOrderId(int orderId) {
+        LinkedList<Medicine> medicines = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Compone WHERE refOrdine = '" + orderId + "'");
+            while(resultSet.next()) {
+                int refFarmaco = Integer.parseInt(resultSet.getString("refFarmaco"));
+                Medicine medicine = null;
+                
+                Statement statement2 = connection.createStatement();
+                ResultSet resultSet2 = statement2.executeQuery("SELECT * FROM Farmaco WHERE idFarmaco = '" + refFarmaco + "'");
+                while(resultSet2.next()) {
+                    int idFarmaco = Integer.parseInt(resultSet2.getString("idFarmaco"));
+                    String nome = resultSet2.getString("nome");
+                    String principioAttivo = resultSet2.getString("principioAttivo");
+                    Date dataScadenza = Date.valueOf(resultSet2.getString("dataScadenza"));
+                    int disponibilita = Integer.parseInt(resultSet.getString("quantita"));
+                    boolean daBanco = Boolean.parseBoolean(resultSet2.getString("daBanco"));
+
+                    medicine = new Medicine(idFarmaco, nome, principioAttivo, dataScadenza, disponibilita, daBanco);
+                }
+
+                medicines.add(medicine);
             }
 
             connection.close();
@@ -122,12 +238,12 @@ public class DBAziendaManager {
             Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
             Statement statement = connection.createStatement();
     
-            ResultSet resultSet = statement.executeQuery("SELECT DISTINCT nome, principioAttivo FROM Farmaco;");
+            ResultSet resultSet = statement.executeQuery("SELECT DISTINCT nome, principioAttivo FROM Farmaco");
             while(resultSet.next()) {
                 String nome = resultSet.getString("nome");
                 String principioAttivo = resultSet.getString("principioAttivo");
 
-                medicines.add(new Medicine(-1, nome, principioAttivo, null, 0));
+                medicines.add(new Medicine(-1, nome, principioAttivo, null, 0, false));
             }
 
             connection.close();
@@ -158,6 +274,163 @@ public class DBAziendaManager {
         }
 
         return hashString;
+    }
+
+    public LinkedList<Order> getNotDeliveredOrdersByRefCorriere(int refCorriere) {
+        LinkedList<Order> orders = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Ordine WHERE refCorriere = '" + refCorriere + "' AND stato = 'Da consegnare' ORDER BY idOrdine DESC");
+            while(resultSet.next()) {
+                int idOrdine = Integer.parseInt(resultSet.getString("idOrdine"));
+                String stato = resultSet.getString("stato");
+                LocalDate dataConsegna = LocalDate.parse(resultSet.getString("dataConsegna"));
+                int refFarmacia = Integer.parseInt(resultSet.getString("refFarmacia"));
+                LinkedList<Medicine> medicines = this.getMedicinesByOrderId(idOrdine);
+
+                Order order = new Order(idOrdine, stato, dataConsegna, refCorriere, refFarmacia, medicines, false);
+                orders.add(order);
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
+    public LinkedList<Order> getNotDeliveredOrdersByRefFarmacia(int refFarmacia) {
+        LinkedList<Order> orders = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Ordine WHERE refFarmacia = '" + refFarmacia + "' AND stato = 'Da consegnare' ORDER BY idOrdine DESC");
+            while(resultSet.next()) {
+                int idOrdine = Integer.parseInt(resultSet.getString("idOrdine"));
+                String stato = resultSet.getString("stato");
+                LocalDate dataConsegna = LocalDate.parse(resultSet.getString("dataConsegna"));
+                int refCorriere = Integer.parseInt(resultSet.getString("refCorriere"));
+                LinkedList<Medicine> medicines = this.getMedicinesByOrderId(idOrdine);
+
+                Order order = new Order(idOrdine, stato, dataConsegna, refCorriere, refFarmacia, medicines, false);
+                orders.add(order);
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
+    public LinkedList<Order> getNotConfirmedOrders() {
+        LinkedList<Order> orders = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Ordine WHERE stato = 'Non confermato' ORDER BY idOrdine DESC");
+            while(resultSet.next()) {
+                int idOrdine = Integer.parseInt(resultSet.getString("idOrdine"));
+                String stato = resultSet.getString("stato");
+                LocalDate dataConsegna = LocalDate.parse(resultSet.getString("dataConsegna"));
+                int refFarmacia = Integer.parseInt(resultSet.getString("refFarmacia"));
+                int refCorriere = Integer.parseInt(resultSet.getString("refCorriere"));
+                LinkedList<Medicine> medicines = this.getMedicinesByOrderId(idOrdine);
+
+                Order order = new Order(idOrdine, stato, dataConsegna, refCorriere, refFarmacia, medicines, false);
+                orders.add(order);
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
+    public LinkedList<Order> getNotConfirmedOrdersByRefFarmacia(int refFarmacia) {
+        LinkedList<Order> orders = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Ordine WHERE stato = 'Non confermato' AND refFarmacia = '" + refFarmacia + "' ORDER BY idOrdine DESC");
+            while(resultSet.next()) {
+                int idOrdine = Integer.parseInt(resultSet.getString("idOrdine"));
+                String stato = resultSet.getString("stato");
+                LocalDate dataConsegna = LocalDate.parse(resultSet.getString("dataConsegna"));
+                int refCorriere = Integer.parseInt(resultSet.getString("refCorriere"));
+                LinkedList<Medicine> medicines = this.getMedicinesByOrderId(idOrdine);
+
+                Order order = new Order(idOrdine, stato, dataConsegna, refCorriere, refFarmacia, medicines, false);
+                orders.add(order);
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
+    public LinkedList<Order> getOrders() {
+        LinkedList<Order> orders = new LinkedList<>();
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Ordine ORDER BY idOrdine DESC");
+            while(resultSet.next()) {
+                int idOrdine = Integer.parseInt(resultSet.getString("idOrdine"));
+                String stato = resultSet.getString("stato");
+                LocalDate dataConsegna = LocalDate.parse(resultSet.getString("dataConsegna"));
+                int refCorriere = Integer.parseInt(resultSet.getString("refCorriere"));
+                int refFarmacia = Integer.parseInt(resultSet.getString("refFarmacia"));
+                LinkedList<Medicine> medicines = this.getMedicinesByOrderId(idOrdine);
+
+                Order order = new Order(idOrdine, stato, dataConsegna, refCorriere, refFarmacia, medicines, false);
+                orders.add(order);
+            }
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+    }
+
+    public int getIdCorriere(String email) {
+        int idCorriere = -1;
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+    
+            ResultSet resultSet = statement.executeQuery("SELECT idUtente FROM Corriere WHERE email = '" + email + "'");
+
+            resultSet.next();
+            idCorriere = Integer.parseInt(resultSet.getString("idUtente"));
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return idCorriere;
     }
 
     public boolean login(String email, String password, String tipologiaUtente) {
@@ -241,6 +514,45 @@ public class DBAziendaManager {
         }
     }
 
+    public void setAsConfirmed(Order order) {
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+            
+            statement.executeUpdate("UPDATE Ordine SET stato='Confermato' WHERE idOrdine = '" + order.getIdOrdine() + "'");
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setAsNotConfirmed(Order order) {
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+            
+            statement.executeUpdate("UPDATE Ordine SET stato='Non confermato' WHERE idOrdine = '" + order.getIdOrdine() + "'");
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setAsSigned(Order order) {
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+            
+            statement.executeUpdate("UPDATE Ordine SET stato='Consegnato' WHERE idOrdine = '" + order.getIdOrdine() + "'");
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updateAllQty(int qty) {
         try {      
             Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
@@ -249,13 +561,16 @@ public class DBAziendaManager {
             // Ottenere la lista (più precisamente, nome e principio attivo) dei farmaci venduti dall'azienda
             LinkedList<String> nomiFarmaci = new LinkedList<>();
             LinkedList<String> principiAttiviFarmaci = new LinkedList<>();
-            ResultSet resultSet = statement.executeQuery("SELECT DISTINCT nome, principioAttivo FROM Farmaco");
+            LinkedList<Boolean> daBancoFarmaci = new LinkedList<>();
+            ResultSet resultSet = statement.executeQuery("SELECT DISTINCT nome, principioAttivo, daBanco FROM Farmaco");
             while(resultSet.next()) {
                 String nomeFarmaco = resultSet.getString("nome");
                 String principioAttivoFarmaco = resultSet.getString("principioAttivo");
+                Boolean daBancoFarmaco = Boolean.parseBoolean(resultSet.getString("daBanco"));
 
                 nomiFarmaci.add(nomeFarmaco);
                 principiAttiviFarmaci.add(principioAttivoFarmaco);
+                daBancoFarmaci.add(daBancoFarmaco);
             }
 
             // Creare un nuovo lotto di "qty" unità per ogni farmaco della lista dei farmaci.
@@ -264,7 +579,7 @@ public class DBAziendaManager {
             LocalDate now = LocalDate.now();
             LocalDate dataScadenza = now.plusMonths(4);
             for(int i=0; i<nomiFarmaci.size(); i++) {
-                statement.executeUpdate("INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita) VALUES('" + nomiFarmaci.get(i) + "', '" + principiAttiviFarmaci.get(i) + "', '" + dataScadenza + "', '" + qty + "')");
+                statement.executeUpdate("INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco) VALUES('" + nomiFarmaci.get(i) + "', '" + principiAttiviFarmaci.get(i) + "', '" + dataScadenza + "', '" + qty + "', '" + daBancoFarmaci.get(i) + "')");
             }
             connection.close();
         } catch(Exception e) {
@@ -288,56 +603,37 @@ public class DBAziendaManager {
         }
     }
 
-    public LinkedList<Delivery> getDeliveries(Corriere corriere){
-        try {
+    public void updateOrder(Order order) {
+        try {      
             Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT a.idOrdine,a.dataConsegna,b.nome,b.indirizzo, b.numeroTelefono,d.nome FROM ordine a,farmacia b,compone c,farmaco d WHERE stato='da consegnare' AND refCorriere=' "+ corriere.getRefCorriere() + "' AND a.refFarmacia=b.idFarmacia AND c.refOrdine=a.idOrdine AND c.refFarmaco=d.idFarmaco ORDER BY a.idOrdine ASC;");
-            LinkedList<Delivery> del = new LinkedList<Delivery>();
-            if (resultSet.next()){
-                while(true){
-                    LinkedList <String> meds = new LinkedList<>();
-                    int idOrdine = Integer.parseInt(resultSet.getString(1));
-                    Date dataConsegna = resultSet.getDate(2);
-                    String nomeFarmacia = resultSet.getString(3);
-                    String indirizzo = resultSet.getString(4);
-                    String numeroTelefono = resultSet.getString(5);
-                    meds.add(resultSet.getString(6));
-                    
-                    while (true) {
-                        if (resultSet.next()) {
-                            int nuovoIdOrdine = Integer.parseInt(resultSet.getString(1));
-                            if (idOrdine == nuovoIdOrdine) {
-                                meds.add(resultSet.getString(6));
-                            } else {
-                                del.add(new Delivery(idOrdine, dataConsegna, nomeFarmacia, indirizzo, numeroTelefono, meds));
-                                break;
-                            }    
-                        } else {
-                            del.add(new Delivery(idOrdine, dataConsegna, nomeFarmacia, indirizzo, numeroTelefono, meds));
-                            connection.close();
-                            return del;
-                        }   
-                    }
-                }
-            } else {
-                return del;
+
+            statement.executeUpdate("UPDATE Ordine SET stato = '" + order.getStato() + "' WHERE idOrdine = '" + order.getIdOrdine() + "'");
+
+            LinkedList<Medicine> medicines = order.getMedicines();
+            for(int i=0; i<medicines.size(); i++) {
+                Medicine medicine = medicines.get(i);
+
+                statement.executeUpdate("UPDATE Compone SET quantita = '" + medicine.getDisponibilita() + "' WHERE refFarmaco = '" + medicine.getIdFarmaco() + "' AND refOrdine = '" + order.getIdOrdine() + "'");
             }
-        } catch (Exception e) {
+            connection.close();
+        } catch(Exception e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    public void setAsSigned(int idOrdine){
-        try {
+    public void updatePassword(String email, String newPassword, String tipologiaUtente) {
+        String newPasswordHash = getMD5(newPassword);
+
+        try {      
             Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
             Statement statement = connection.createStatement();
 
-            statement.executeUpdate("UPDATE `ordine` SET `stato`='consegnato' WHERE idOrdine= '" + idOrdine + "';");
+            statement.executeUpdate("UPDATE '" + tipologiaUtente + "' SET hashPassword = '" + newPasswordHash + "' WHERE email = '" + email + "'");
+            
             connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();;
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 }

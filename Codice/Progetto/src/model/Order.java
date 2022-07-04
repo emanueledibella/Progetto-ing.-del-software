@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.LinkedList;
 
 public class Order {
+    private int idOrdine;
     private String stato;
     private LocalDate dataConsegna = null;
     private int refCorriere;
@@ -12,6 +13,15 @@ public class Order {
     private boolean alertScadenza = false;
 
     public Order() {}
+    public Order(int idOrdine, String stato, LocalDate dataConsegna, int refCorriere, int refFarmacia, LinkedList<Medicine> medicines, boolean alertScadenza) {
+        this.setIdOrdine(idOrdine);
+        this.setStato(stato);
+        this.setDataConsegna(dataConsegna);
+        this.setRefCorriere(refCorriere);
+        this.setRefFarmacia(refFarmacia);
+        this.setMedicines(medicines);
+        this.setAlertScadenza(alertScadenza);
+    }
     public Order(String stato, LocalDate dataConsegna, int refCorriere, int refFarmacia, LinkedList<Medicine> medicines, boolean alertScadenza) {
         this.setStato(stato);
         this.setDataConsegna(dataConsegna);
@@ -45,6 +55,10 @@ public class Order {
         this.stato = stato;
     }
 
+    public void setIdOrdine(int idOrdine) {
+        this.idOrdine = idOrdine;
+    }
+
     public boolean getAlertScadenza() {
         return this.alertScadenza;
     }
@@ -67,5 +81,9 @@ public class Order {
 
     public String getStato() {
         return this.stato;
+    }
+
+    public int getIdOrdine() {
+        return this.idOrdine;
     }
 }

@@ -8,13 +8,16 @@ public class Medicine {
     private String principioAttivo;
     private Date dataScadenza;
     private int disponibilita;
+    private boolean daBanco;
 
-    public Medicine(int idFarmaco, String nome, String principioAttivo, Date dataScadenza, int disponibilita) {
+    public Medicine() {}
+    public Medicine(int idFarmaco, String nome, String principioAttivo, Date dataScadenza, int disponibilita, boolean daBanco) {
         this.setIdFarmaco(idFarmaco);
         this.setNome(nome);
         this.setPrincipioAttivo(principioAttivo);
         this.setDataScadenza(dataScadenza);
         this.setDisponibilita(disponibilita);
+        this.setDaBanco(daBanco);
     }
 
     public void setIdFarmaco(int idFarmaco) {
@@ -55,5 +58,13 @@ public class Medicine {
 
     public int getDisponibilita() {
         return this.disponibilita;
+    }
+
+    public void setDaBanco(boolean daBanco) {
+        this.daBanco = daBanco;
+    }
+
+    public boolean getDaBanco() {
+        return this.daBanco;
     }
 }

@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.ResourceBundle;
 
 import control.AlertScadenzaControl;
+import control.OrderControl;
+import control.UserControl;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -22,6 +24,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import model.Medicine;
 
 public class AlertScadenzaForm implements Initializable {
@@ -57,31 +60,46 @@ public class AlertScadenzaForm implements Initializable {
     private Button spostaConsegnaButton;
 
     private AlertScadenzaControl alertScadenzaControl;
-    private OrderMedsForm orderMedsForm;
+    private UserControl userControl;
+    private OrderControl orderControl;
+    private LinkedList<Medicine> medicines;
+    private LocalDate dataConsegna;
+    private boolean invokedByPrenotaFarmaci;
 
-
-    public AlertScadenzaForm(OrderMedsForm orderMedsForm) {
-        alertScadenzaControl = new AlertScadenzaControl(orderMedsForm.getOrderControl().getOrder());
-        this.orderMedsForm = orderMedsForm;
+    public AlertScadenzaForm(UserControl userControl, OrderControl orderControl) {
+        alertScadenzaControl = new AlertScadenzaControl(orderControl.getOrder());
+        this.userControl = userControl;
+        this.orderControl = orderControl;
+        this.invokedByPrenotaFarmaci = true;    // Alert scadenza è invocato da Prenota farmaci
+    }
+    public AlertScadenzaForm(UserControl userControl, OrderControl orderControl, LinkedList<Medicine> medicines, LocalDate dataConsegna) {
+        alertScadenzaControl = new AlertScadenzaControl(orderControl.getOrder());
+        this.userControl = userControl;
+        this.orderControl = orderControl;
+        this.medicines = medicines;
+        this.dataConsegna = dataConsegna;
+        this.invokedByPrenotaFarmaci = false;   // Alert scadenza è invocato da Modifica ordine
     }
 
     @FXML
     void confirm(MouseEvent event) {
         if(event.getSource() == proseguiButton) {
-            orderMedsForm.order();
-        }
-    }
+            if(!invokedByPrenotaFarmaci) {
+                orderControl.dbAziendaManager.deleteOrder(orderControl.getOrder());
+                orderControl.getOrder().setMedicines(medicines);
+                orderControl.getOrder().setDataConsegna(dataConsegna);
+            }
 
-    @FXML
-    void indietroButtonOnMouseClicked(MouseEvent event) {
-        if(event.getSource() == indietroButton) {
+            orderControl.order();
+
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/OrderMedsForm.fxml"));
-                loader.setController(orderMedsForm);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageFarmacista.fxml"));
+                HomepageFarmacista homepageFarmacista = new HomepageFarmacista(userControl);
+                loader.setController(homepageFarmacista);
                 Parent root;
                 root = loader.load();
                 Scene scene = new Scene(root);
-                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                Stage stage = (Stage)Stage.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
                 stage.setScene(scene);
                 Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
                 stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
@@ -89,6 +107,47 @@ public class AlertScadenzaForm implements Initializable {
                 stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    @FXML
+    void indietroButtonOnMouseClicked(MouseEvent event) {
+        if(event.getSource() == indietroButton) {
+            if(invokedByPrenotaFarmaci) { // Alert scadenza è stato invocato da Prenota Farmaci
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/OrderMedsForm.fxml"));
+                    OrderMedsForm orderMedsForm = new OrderMedsForm(userControl);
+                    loader.setController(orderMedsForm);
+                    Parent root;
+                    root = loader.load();
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                    stage.setScene(scene);
+                    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                    stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                    stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else { // Alert scadenza è stato invocato da Modifica ordine
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/OrdersListEditOrders.fxml"));
+                    OrdersListEditOrders ordersListEditOrders = new OrdersListEditOrders(userControl);
+                    loader.setController(ordersListEditOrders);
+                    Parent root;
+                    root = loader.load();
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                    stage.setScene(scene);
+                    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                    stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                    stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -104,16 +163,68 @@ public class AlertScadenzaForm implements Initializable {
 
             tableView.getItems().addAll(nearExpirationDateList);
         } else {
-            orderMedsForm.order();
+            if(!invokedByPrenotaFarmaci) {
+                orderControl.dbAziendaManager.deleteOrder(orderControl.getOrder());
+                orderControl.getOrder().setMedicines(medicines);
+                orderControl.getOrder().setDataConsegna(dataConsegna);
+            }
+
+            orderControl.order();
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageFarmacista.fxml"));
+                HomepageFarmacista homepageFarmacista = new HomepageFarmacista(userControl);
+                loader.setController(homepageFarmacista);
+                Parent root;
+                root = loader.load();
+                Scene scene = new Scene(root);
+                Stage stage = (Stage)Stage.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
+                stage.setScene(scene);
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @FXML
     void moveDelivery(MouseEvent event) {
         if(event.getSource() == spostaConsegnaButton) {
+            if(!invokedByPrenotaFarmaci) { // Alert scadenza è stato invocato da Modifica ordine
+                // Da un punto di vista implementativo, piuttosto che modificare l'ordine
+                // in realtà si annulla l'ordine preesistente e
+                // si crea un nuovo ordine sulla base dei dati dell'ordine già esistente
+                orderControl.dbAziendaManager.deleteOrder(orderControl.getOrder());
+                //Correggere le quantità dei farmaci dell'ordine con le quantità modificate del Farmacista
+                orderControl.getOrder().setMedicines(medicines);
+                // Correggere la data di consegna dell'ordine con la data di consegna modificata del Farmacista
+                orderControl.getOrder().setDataConsegna(dataConsegna);
+            }
+            
             LocalDate newDataConsegna = alertScadenzaControl.calcNewDate();
-            orderMedsForm.getOrderControl().getOrder().setDataConsegna(newDataConsegna);
-            orderMedsForm.order();
+            orderControl.getOrder().setDataConsegna(newDataConsegna);
+
+            orderControl.order();
+            
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageFarmacista.fxml"));
+                HomepageFarmacista homepageFarmacista = new HomepageFarmacista(userControl);
+                loader.setController(homepageFarmacista);
+                Parent root;
+                root = loader.load();
+                Scene scene = new Scene(root);
+                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                stage.setScene(scene);
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

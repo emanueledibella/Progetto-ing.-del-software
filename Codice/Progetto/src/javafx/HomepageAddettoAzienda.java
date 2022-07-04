@@ -18,13 +18,7 @@ public class HomepageAddettoAzienda {
     private Button aggiornamentoManualeButton;
 
     @FXML
-    private Button gestisciOrdiniButton;
-
-    @FXML
     private Button logoutButton;
-
-    @FXML
-    private Button mostraOrdiniNonConfermatiButton;
 
     @FXML
     private Button visualizzaOrdiniButton;
@@ -35,11 +29,13 @@ public class HomepageAddettoAzienda {
     @FXML
     void logout(MouseEvent event) {
         if(event.getSource() == logoutButton) {
-            Parent root;
             try {
-                root = FXMLLoader.load(getClass().getResource("../javafx/LogoutForm.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/LogoutForm.fxml"));
+                LogoutForm logoutForm = new LogoutForm(null);
+                loader.setController(logoutForm);
+                Parent root;
+                root = loader.load();
                 Scene scene = new Scene(root);
-
                 Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
                 Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();

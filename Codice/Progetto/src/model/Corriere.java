@@ -1,9 +1,14 @@
 package model;
 
 public class Corriere extends User {
-    private int refCorriere = 3;
+    private int idCorriere;
 
-    public int getRefCorriere(){
-        return this.refCorriere;
+    public Corriere(int idCorriere) {
+        super.setSession("Farmacista");
+        this.idCorriere = idCorriere;
+    }
+
+    public int getIdCorriere() {
+        return this.idCorriere;
     }
 }

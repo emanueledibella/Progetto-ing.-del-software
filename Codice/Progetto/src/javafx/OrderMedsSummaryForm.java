@@ -2,10 +2,9 @@ package javafx;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
-import java.util.LinkedList;
 import java.util.ResourceBundle;
 
+import control.OrderControl;
 import control.UserControl;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +21,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Node;
-import model.Farmacista;
 import model.Medicine;
 
 public class OrderMedsSummaryForm implements Initializable {
@@ -52,16 +50,18 @@ public class OrderMedsSummaryForm implements Initializable {
     private TableView<Medicine> tableView;
 
     private UserControl userControl;
-    private LinkedList<Medicine> medicines;
-    private LocalDate dataConsegna;
-    private OrderMedsForm orderMedsForm;
+    //private LinkedList<Medicine> medicines;
+    //private LocalDate dataConsegna;
+    //private OrderMedsForm orderMedsForm;
+    private OrderControl orderControl;
 
 
-    public OrderMedsSummaryForm(UserControl userControl, LinkedList<Medicine> medicines, LocalDate dataConsegna, OrderMedsForm orderMedsForm) {
+    public OrderMedsSummaryForm(UserControl userControl, OrderControl orderControl/*, LinkedList<Medicine> medicines, LocalDate dataConsegna, OrderMedsForm orderMedsForm*/) {
         this.userControl = userControl;
-        this.medicines = medicines;
-        this.dataConsegna = dataConsegna;
-        this.orderMedsForm = orderMedsForm;
+        //this.medicines = medicines;
+        //this.dataConsegna = dataConsegna;
+        //this.orderMedsForm = orderMedsForm;
+        this.orderControl = orderControl;
     }
 
     @FXML
@@ -89,14 +89,14 @@ public class OrderMedsSummaryForm implements Initializable {
     @FXML
     void confirm(MouseEvent event) {
         if(event.getSource() == confermaButton) {
-            Farmacista farmacista = (Farmacista)userControl.user;
-            orderMedsForm.getOrderControl().getOrder().setRefFarmacia(farmacista.getRefFarmacia());
-            orderMedsForm.getOrderControl().getOrder().setMedicines(medicines);
-            orderMedsForm.getOrderControl().getOrder().setDataConsegna(dataConsegna);
+            //Farmacista farmacista = (Farmacista)userControl.user;
+            //orderMedsForm.getOrderControl().getOrder().setRefFarmacia(farmacista.getRefFarmacia());
+            //orderMedsForm.getOrderControl().getOrder().setMedicines(medicines);
+            //orderMedsForm.getOrderControl().getOrder().setDataConsegna(dataConsegna);
 
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/AlertScadenzaForm.fxml"));
-                AlertScadenzaForm alertScadenzaForm = new AlertScadenzaForm(orderMedsForm);
+                AlertScadenzaForm alertScadenzaForm = new AlertScadenzaForm(userControl, orderControl);
                 loader.setController(alertScadenzaForm);
                 Parent root;
                 root = loader.load();
@@ -119,8 +119,8 @@ public class OrderMedsSummaryForm implements Initializable {
         nomeTableColumn.setCellValueFactory(new PropertyValueFactory<Medicine, String>("nome"));
         principioAttivoTableColumn.setCellValueFactory(new PropertyValueFactory<Medicine, String>("principioAttivo"));
         quantitaTableColumn.setCellValueFactory(new PropertyValueFactory<Medicine, Integer>("disponibilita"));
-        tableView.getItems().addAll(medicines);
+        tableView.getItems().addAll(orderControl.getOrder().getMedicines());
 
-        dataConsegnaLabel.setText("Data di consegna: " + this.dataConsegna.toString());
+        dataConsegnaLabel.setText("Data di consegna: " + orderControl.getOrder().getDataConsegna().toString());
     }
 }

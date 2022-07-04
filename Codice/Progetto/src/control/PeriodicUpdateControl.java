@@ -14,7 +14,7 @@ public class PeriodicUpdateControl {
     private DBAziendaManager dbAziendaManager = new DBAziendaManager();
 
     public void initPeriodicUpdate() {
-        File file = new File("../periodicUpdateDate.txt");
+        File file = new File("periodicUpdateDate.txt");
 
         if(!file.exists()) {
             try {
@@ -45,6 +45,14 @@ public class PeriodicUpdateControl {
                 // Eventuale incremento delle disponibilità dei farmaci in magazzino
                 if(diff.toDays() >= 7) {
                     dbAziendaManager.updateAllQty(500);
+
+                    // Imposta la data odierna come la data in cui è stata effettuata l'ultima ricarica periodica
+                    file.delete();
+                    FileWriter fileWriter = new FileWriter(file);
+                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(LocalDate.now().toString());
+                    bufferedWriter.flush();
+                    bufferedWriter.close();
                 }
             } catch (Exception e) {
                 e.printStackTrace();

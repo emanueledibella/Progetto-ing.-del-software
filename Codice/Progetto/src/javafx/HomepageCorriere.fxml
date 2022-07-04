@@ -3,9 +3,9 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="132.0" prefWidth="223.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafx.HomepageCorriere">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="86.0" prefWidth="223.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="visualConsegneButton" layoutX="30.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#visualizzaConsegne" prefHeight="24.0" prefWidth="164.0" text="Visualizza consegne" />
+      <Button fx:id="visualizzaConsegneButton" layoutX="14.0" layoutY="54.0" mnemonicParsing="false" onMouseClicked="#viewDelivery" prefHeight="24.0" prefWidth="164.0" text="Visualizza consegne" />
       <Button fx:id="logoutButton" blendMode="EXCLUSION" layoutX="131.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#logout" prefHeight="24.0" prefWidth="77.0" text="Logout" />
    </children>
 </AnchorPane>
