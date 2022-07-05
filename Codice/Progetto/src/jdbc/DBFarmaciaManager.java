@@ -217,6 +217,27 @@ public class DBFarmaciaManager {
         }
     }
 
+    public void updateInventoryFromRefFarmacia(LinkedList<Medicine> meds,int refFarmacia) {
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+
+            for(int i=0; i<meds.size(); i++) {
+                Medicine med = meds.get(i);
+                String nome = med.getNome();
+                String principioAttivo = med.getPrincipioAttivo();
+                Date dataScadenza = med.getDataScadenza();
+                int disponibilita = med.getDisponibilita();
+                Boolean daBanco = med.getDaBanco();
+
+                statement.executeUpdate("INSERT INTO Farmaco(nome, principioAttivo, dataScadenza, disponibilita, daBanco, refFarmacia) VALUES('" + nome + "', '" + principioAttivo + "', '" + dataScadenza + "', '" + disponibilita + "', '" + daBanco + "', '" + refFarmacia + "')");
+            }
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updatePassword(String email, String newPassword) {
         String newPasswordHash = getMD5(newPassword);
 

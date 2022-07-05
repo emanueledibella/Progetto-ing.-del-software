@@ -206,13 +206,11 @@ public class AlertScadenzaForm implements Initializable {
             
             LocalDate newDataConsegna = alertScadenzaControl.calcNewDate();
             orderControl.getOrder().setDataConsegna(newDataConsegna);
-
-            orderControl.order();
             
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/HomepageFarmacista.fxml"));
-                HomepageFarmacista homepageFarmacista = new HomepageFarmacista(userControl);
-                loader.setController(homepageFarmacista);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../javafx/NewDateForm.fxml"));
+                NewDateForm newDateForm = new NewDateForm(userControl, orderControl);
+                loader.setController(newDateForm);
                 Parent root;
                 root = loader.load();
                 Scene scene = new Scene(root);

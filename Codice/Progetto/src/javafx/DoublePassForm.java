@@ -14,6 +14,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Node;
+import java.util.Properties;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 public class DoublePassForm {
 
@@ -34,17 +40,38 @@ public class DoublePassForm {
         if(event.getSource() == aggiornaPassword) {
             String email = userControl.user.getEmail();
             String newPassword = newPasswordTextField.getText();
+            String tipologiaUtente;
 
-            if(userControl.user.getTipologiaUtente().equals("AddettoAzienda") || userControl.user.getTipologiaUtente().equals("Corriere")) {
-                String tipologiaUtente = userControl.user.getTipologiaUtente();
+            if(userControl.dbAziendaManager.addettoAziendaHasEmail(email)) {
+                tipologiaUtente = "AddettoAzienda";
                 userControl.dbAziendaManager.updatePassword(email, newPassword, tipologiaUtente);
-            } else {
+            } else if(userControl.dbAziendaManager.corriereHasEmail(email)) {
+                tipologiaUtente = "Corriere";
+                userControl.dbAziendaManager.updatePassword(email, newPassword, tipologiaUtente);
+            } else {    // Farmacista
                 userControl.dbFarmaciaManager.updatePassword(email, newPassword);
             }
 
-            // TODO: Inviare email
-            //
-            //
+            // Inviare email
+            String mittente="aziendafarmaceutica@azienda.it";
+            String host="smtp.freesmtpservers.com";
+            String subject = "Azienda Farmaceutica: notifica di avvenuto cambio password";
+            String text = "Gentile utente,\n\nla password nel tuo account sul Sistema aziendale è stata modificata correttamente. \n\nSe non sei stato tu a cambiare la password, contatta l'amministrazione.";
+            Properties properties = new Properties();
+            properties.put("mail.smtp.host", host);
+            properties.put("port", 25);
+            Session session = Session.getInstance(properties, null);              
+            MimeMessage mail = new MimeMessage(session);
+            try {
+                mail.setFrom(new InternetAddress(mittente));
+                mail.addRecipients(Message.RecipientType.TO, email);
+                mail.setSubject(subject);
+                mail.setText(text);
+
+                Transport.send(mail);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
 
             try {
                 Parent root = FXMLLoader.load(getClass().getResource("../javafx/LoginForm.fxml"));

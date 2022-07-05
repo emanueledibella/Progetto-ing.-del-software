@@ -182,7 +182,7 @@ public class OrderControl {
         LocalDate now = LocalDate.now();
         LocalDate twoMonthsFromNow = now.plusMonths(2);
         LinkedList<Medicine> meds = dbAziendaManager.getMedicinesByDeadline();
-        boolean scorteInsufficienti = false;
+        //boolean scorteInsufficienti = false;
         for(int i=0; i<order.getMedicines().size(); i++) {
             Medicine medicine = order.getMedicines().get(i);     // Farmaco che si vuole prenotare
             int qty = medicine.getDisponibilita();
@@ -209,7 +209,7 @@ public class OrderControl {
             }
 
             if(qty != 0) {
-                scorteInsufficienti = true;
+                //scorteInsufficienti = true;
                 Duration diff = Duration.between(order.getDataConsegna().atStartOfDay(), newDataConsegna.atStartOfDay());
                 int settimane = (int)(diff.toDays()/7);   // Considerando che la ricarica periodica avviene ogni settimana, esprimo la differenza in settimane
 

@@ -5,10 +5,9 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="105.0" prefWidth="485.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label layoutX="-2.0" layoutY="14.0" prefHeight="36.0" prefWidth="490.0" text="ERRORE! Si sta tentando di modificare un ordine la cui data di scadenza è prossima di 2 giorni o meno alla data di consegna" textAlignment="CENTER" wrapText="true">
+      <Label layoutX="-2.0" layoutY="14.0" prefHeight="36.0" prefWidth="490.0" text="ERRORE! Si sta tentando di modificare un ordine la cui data di consegna è prossima di 2 giorni o meno alla data odierna" textAlignment="CENTER" wrapText="true">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>

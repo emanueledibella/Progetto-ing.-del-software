@@ -15,6 +15,24 @@ public class DBAziendaManager {
     private String username = "root";
     private String password = "QPkFSey6wEwTM9Dz";
 
+    public boolean addettoAziendaHasEmail(String email) {
+        boolean exists = false;
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery("SELECT AddettoAzienda.email FROM AddettoAzienda WHERE AddettoAzienda.email = '" + email + "'");
+            exists = resultSet.next();
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return exists;
+    }
+
     // N.B.: Si consideri il sequence diagram Registrazione.
     // Il metodo di seguito rappresenta il messaggio 6: checkUsername().
     // Poiché effettivamente non si fa il check dell'username ma si fa il check dell'email,
@@ -31,6 +49,24 @@ public class DBAziendaManager {
             resultSet = statement.executeQuery("SELECT Corriere.email FROM Corriere WHERE Corriere.email = '" + email + "'");
             boolean existsCorriere = resultSet.next();
             exists = existsAddettoAzienda || existsCorriere;
+
+            connection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return exists;
+    }
+
+    public boolean corriereHasEmail(String email) {
+        boolean exists = false;
+
+        try {      
+            Connection connection = DriverManager.getConnection(this.dbUrl, this.username, this.password);
+            Statement statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery("SELECT Corriere.email FROM Corriere WHERE Corriere.email = '" + email + "'");
+            exists = resultSet.next();
 
             connection.close();
         } catch(Exception e) {

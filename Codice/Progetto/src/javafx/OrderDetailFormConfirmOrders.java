@@ -89,9 +89,7 @@ public class OrderDetailFormConfirmOrders implements Initializable {
 
             if(confirmed) {
                 orderControl.dbAziendaManager.setAsConfirmed(orderControl.getOrder());
-
-                // TODO: Il sistema richiede al DBMSFarmacia di aggiornare la quantità dei farmaci in magazzino.
-                
+                orderControl.dbFarmaciaManager.updateInventoryFromRefFarmacia(orderControl.getOrder().getMedicines(), orderControl.getOrder().getRefFarmacia());
             } else {
                 orderControl.dbAziendaManager.setAsNotConfirmed(orderControl.getOrder());
             }
