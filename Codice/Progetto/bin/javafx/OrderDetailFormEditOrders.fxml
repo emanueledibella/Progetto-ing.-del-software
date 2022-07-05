@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="327.0" prefWidth="735.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TableView fx:id="tableView" editable="true" layoutY="22.0" prefHeight="232.0" prefWidth="744.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <columns>
+            <TableColumn fx:id="nomeTableColumn" editable="false" prefWidth="343.0" sortable="false" text="Nome" />
+            <TableColumn fx:id="principioAttivoTableColumn" editable="false" minWidth="0.0" prefWidth="227.0" sortable="false" text="Principio attivo" />
+            <TableColumn fx:id="quantitaTableColumn" prefWidth="167.0" sortable="false" text="Quantità" />
+         </columns>
+      </TableView>
+      <Button fx:id="indietroButton" mnemonicParsing="false" onMouseClicked="#indietroButtonOnMouseClicked" prefHeight="20.0" prefWidth="600.0" text="INDIETRO" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <font>
+            <Font name="System Bold" size="10.0" />
+         </font>
+      </Button>
+      <Button fx:id="modificaButton" layoutX="259.0" layoutY="291.0" mnemonicParsing="false" onMouseClicked="#save" prefWidth="482.0" text="Modifica" AnchorPane.leftAnchor="259.0" AnchorPane.rightAnchor="259.0" />
+      <DatePicker fx:id="dataConsegnaDatePicker" editable="false" layoutX="5.0" layoutY="273.0" />
+      <Label layoutX="5.0" layoutY="257.0" text="Data consegna:" />
+   </children>
+</AnchorPane>
